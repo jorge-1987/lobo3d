@@ -1,12 +1,13 @@
 import pygame
 import time
 import random
+import math
 
 pygame.init()
 
 #Size of the game area
-display_width = 820
-display_height = 660
+display_width = 1700
+display_height = 600
 
 #Colors for use in backgrounds or buttons
 black = (0,0,0)
@@ -20,39 +21,48 @@ bgreen = (0,255,0)
 blue = (0,0,200)
 
 #Main character
-pacq_width = 80
-orientation = "r"
+l_width = 20
+b_width = 50
+orientation = 1.5707963268
 speed = 1
 
 #Global variable with the score
 score = 0
 
+#Matematica
+grados10  = 0.1745329252
+pi        = 3.1415926535
+pi180     = 57.295779514
+grados90  = 1.5707963268
+grados270 = 4.7123889804
+grados360 = 6.2831853072
+
 #Map
-mapa = [[1,0,1,1,1,1,0,1],
-        [0,0,0,0,0,0,0,0],
-        [1,0,1,1,1,1,0,1],
-        [0,0,0,0,0,1,0,0],
-        [1,0,1,0,0,1,0,1],
-        [0,0,1,1,0,1,0,0],
-        [1,0,0,0,0,0,0,1]]
+mapa = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+        [1,0,0,0,0,0,0,0,1,0,1,1,1,1,0,1,1,1],
+        [1,0,1,1,1,1,0,1,1,0,1,1,1,1,0,1,1,1],
+        [1,0,0,0,0,1,0,0,1,0,1,0,0,0,0,1,1,1],
+        [1,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,1,1],
+        [1,0,1,1,0,1,0,0,1,0,1,0,0,0,0,1,1,1],
+        [1,0,0,0,0,0,0,0,1,0,1,1,1,0,0,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1],
+        [1,0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1],
+        [1,0,0,0,0,0,0,0,1,0,1,1,1,1,0,1,1,1],
+        [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]]
 
 #Set the size of the game area.
 gameDisplay = pygame.display.set_mode((display_width,display_height))
 
 #Caption for the name of the Window.
-pygame.display.set_caption('Pac-Q')
+pygame.display.set_caption('Lobo3D')
 
 #The timer to make the world move
 reloj = pygame.time.Clock()
 
-#The different faces of the character
-pacq_up = (pygame.image.load('Assets/pacquc.png'),pygame.image.load('Assets/pacqua.png'))
-pacq_down = (pygame.image.load('Assets/pacqdc.png'),pygame.image.load('Assets/pacqda.png'))
-pacq_left = (pygame.image.load('Assets/pacqlc.png'),pygame.image.load('Assets/pacqla.png'))
-pacq_right = (pygame.image.load('Assets/pacqrc.png'),pygame.image.load('Assets/pacqra.png'))
 
 #The enemies
-fantasmita = pygame.image.load('Assets/fantasmitav.png')
+
 
 #To exit the game.
 def quitgame():
@@ -83,21 +93,11 @@ def scored():
   text = font.render("Last Score: "+str(score), True, black)
   gameDisplay.blit(text, (0, 0))
 
-#Enemy in screen
-def fantasmitas(tx, ty, tw, th, tc):
+#Enemy on screen
+#def fantasmitas(tx, ty, tw, th, tc):
 #  pygame.draw.rect(gameDisplay, tc, [tx, ty, tw, th])
-  gameDisplay.blit(fantasmita,(tx,ty))
+  #gameDisplay.blit(fantasmita,(tx,ty))
 
-#Character to the screen dependig orientation
-def character(orientation,x,y):
-  if orientation == "u":
-    gameDisplay.blit(pacq_up[random.randint(0, 1)],(x,y))
-  elif orientation == "d":
-    gameDisplay.blit(pacq_down[random.randint(0, 1)],(x,y))
-  elif orientation == "l":
-    gameDisplay.blit(pacq_left[random.randint(0, 1)],(x,y))
-  elif orientation == "r":
-    gameDisplay.blit(pacq_right[random.randint(0, 1)],(x,y))
 
 #Function to draw test
 def text_objects(text,font):
@@ -115,37 +115,8 @@ def message_display(text):
 #Wait
   time.sleep(2)
 
-def colisionesup(mapas,x,y,xx,yy):
-  for cuadrante in reversed(mapas):
-    if y == cuadrante[3]+1 and x >= cuadrante[0] and x <= cuadrante[1]:
-      return True
-    elif y == cuadrante[3]+1 and xx >= cuadrante[0] and xx <= cuadrante[1]:
-      return True
-  return False
+#Colisiones
 
-def colisionesd(mapas,x,y,xx,yy):
-  for cuadrante in mapas:
-    if yy == cuadrante[2]+1 and x >= cuadrante[0] and x <= cuadrante[1]:
-      return True
-    elif yy == cuadrante[2]+1 and xx >= cuadrante[0] and xx <= cuadrante[1]:
-      return True
-  return False
-
-def colisionesl(mapas,x,y,xx,yy):
-  for cuadrante in reversed(mapas):
-    if x == cuadrante[1]+1 and y >= cuadrante[2] and y <= cuadrante[3]:
-      return True
-    elif x == cuadrante[1]+1 and yy >= cuadrante[2] and yy <= cuadrante[3]:
-      return True
-  return False
-
-def colisionesr(mapas,x,y,xx,yy):
-  for cuadrante in reversed(mapas):
-    if xx == cuadrante[0]+1 and y >= cuadrante[2] and y <= cuadrante[3]:
-      return True
-    elif xx == cuadrante[0]+1 and yy >= cuadrante[2] and yy <= cuadrante[3]:
-      return True
-  return False
 
 #Game Over!
 def gameover():
@@ -164,7 +135,7 @@ def game_intro():
 
     gameDisplay.fill(white)
     largetext = pygame.font.Font('freesansbold.ttf',115)
-    TextSurf, TextRect = text_objects("Pac-Q", largetext)
+    TextSurf, TextRect = text_objects("Lobo3D", largetext)
     TextRect.center = ((display_width//2),(display_height//2))
     gameDisplay.blit(TextSurf, TextRect)
 
@@ -182,8 +153,12 @@ def game_loop():
 #  game_intro()
   global orientation
 #Start position of the character?
-  X = 0
-  Y = 0
+  X = 200
+  Y = 400
+
+#Start position of the character?
+  RayStart = [X+10,Y+10]
+  RayEnd = [RayStart[0]+50,RayStart[1]]
 
 #The character movement
   x_change = 0
@@ -220,33 +195,27 @@ def game_loop():
   for F in range(len(mapa)):
       for C in range(len(mapa[F])):
           if mapa[F][C]:
-            collisiones.append(((90*C)+lb_width,((90*C)+90)+lb_width,(90*F)+ub_height,((90*F)+90)+ub_height))
-          else:
-            if not fantaspos:
-              f_startx = (90*C)+lb_width
-              f_starty = (90*F)+ub_height
-              fantaspos = True
-            
-            if Distancia > 3:
-              X = (90*C)+lb_width
-              Y = (90*F)+ub_height
-            
-            Distancia += 1
+            collisiones.append(((C*50),((C*50)),(F*50),((F*50))))
 
 #PINTAR FONDO
   gameDisplay.fill(grey)
 #PINTAR Marco
-  pygame.draw.rect(gameDisplay, blue, [ub_startx, ub_starty, ub_width, ub_height])
-  pygame.draw.rect(gameDisplay, blue, [lb_startx, lb_starty, lb_width, lb_height])
+  #pygame.draw.rect(gameDisplay, blue, [lb_startx, lb_starty, lb_width, lb_height])
 
 #PINTAR MAPA
   for cuadro in collisiones:
-    pygame.draw.rect(gameDisplay, red, [cuadro[0], cuadro[2], pacq_width, pacq_width])
+    pygame.draw.rect(gameDisplay, red, [cuadro[0], cuadro[2], b_width, b_width])
 
 #LOOP PRINCIPAL DEL JUEGO
 #LOOP PRINCIPAL DEL JUEGO
 #LOOP PRINCIPAL DEL JUEGO
   while not gameexit:
+
+    #Limpiar area de juego
+    pygame.draw.rect(gameDisplay, grey, [0, 0, 1700, 600])
+  #PINTAR MAPA
+    for cuadro in collisiones:
+      pygame.draw.rect(gameDisplay, red, [cuadro[0], cuadro[2], b_width, b_width])
 
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
@@ -256,24 +225,63 @@ def game_loop():
       if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_LEFT:
           #down_pressed = True
-          x_change = (0-speed)
+          #x_change = (0-speed)
+          x_change = 0
           y_change = 0
-          orientation = "l"
+
+          if orientation < grados360:
+            orientation = orientation+grados10
+          else:
+            orientation = 0
+
+          #Ver la orientacion en RAD
+          print(orientation)
         elif event.key == pygame.K_RIGHT:
           #down_pressed = True
-          x_change = speed
+          #x_change = speed
+          x_change = 0
           y_change = 0
-          orientation = "r"
+
+          if orientation > 0:
+            orientation = orientation-grados10
+          else:
+            orientation = grados360
+
+          #Ver la orientacion en RAD
+          print(orientation)
         elif event.key == pygame.K_UP:
           #down_pressed = True
           y_change = (0-speed)
           x_change = 0
-          orientation = "u"
+
         elif event.key == pygame.K_DOWN:
           #down_pressed = True
           y_change = speed
           x_change = 0
-          orientation = "d"
+
+
+      if event.type == pygame.KEYUP:
+        if event.key == pygame.K_LEFT:
+          #down_pressed = True
+          x_change = 0
+          y_change = 0
+          orientation = orientation
+        elif event.key == pygame.K_RIGHT:
+          #down_pressed = True
+          x_change = 0
+          y_change = 0
+          orientation = orientation
+        elif event.key == pygame.K_UP:
+          #down_pressed = True
+          y_change = 0
+          x_change = 0
+
+        elif event.key == pygame.K_DOWN:
+          #down_pressed = True
+          y_change = 0
+          x_change = 0
+
+
 
       #if event.type == pygame.KEYUP:
       #  if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -293,33 +301,34 @@ def game_loop():
 #    if (Y > (display_height - (pacq_width + 3))) and down_pressed and orientation == "d":
 #      y_change = 0
 
-    if orientation == "l":
-      if (X <= 101):
-        x_change = 0
-      elif colisionesl(collisiones,X,Y,(X+pacq_width),(Y+pacq_width)):
-        x_change = 0
-    
-    if orientation == "r":
-      if (X >= (display_width - (pacq_width + 3))):
-        x_change = 0
-      elif colisionesr(collisiones,X,Y,(X+pacq_width),(Y+pacq_width)):
-        x_change = 0
+#PINTAR PRIMERO LOS CUADRADOS POR DONDE PASO EL CARACTER, Y LUEGO PINTAR TODOS LOS CARACTERES EN PANTALLA
 
-    if orientation == "u":
-      if (Y <= 41):
-        y_change = 0
-      elif colisionesup(collisiones,X,Y,(X+pacq_width),(Y+pacq_width)):
-        y_change = 0
-    
-    if orientation == "d":
-      if (Y >= (display_height - (pacq_width + 3))):
-        y_change = 0
-      elif colisionesd(collisiones,X,Y,(X+pacq_width),(Y+pacq_width)):
-        y_change = 0
+    #Pintar sobre donde estuvieron los characters para que no dejen un trail
+    #    fantasmitas(t_startx, t_starty, t_width, t_height, black)
+    #pygame.draw.rect(gameDisplay, grey, [f_startx, f_starty, f_width, f_height])
 
+    #    character(orientation,int(X),int(Y))
+    pygame.draw.rect(gameDisplay, grey, [X, Y, l_width, l_width])
 
     X += x_change
     Y += y_change
+    RayStart[0] = X+10
+    RayStart[1] = Y+10
+
+
+    if orientation > grados270 or orientation < grados90:
+      rayolargo = 50
+    else:
+      rayolargo = -50
+
+    orientagrados = orientation * pi180
+
+    ca = (math.tan(orientagrados)*rayolargo)
+    #print(ca)
+
+
+    RayEnd[0] = X+rayolargo
+    RayEnd[1] = Y+ca
 
 #PINTAR FONDO
 #    gameDisplay.fill(grey)
@@ -328,20 +337,19 @@ def game_loop():
 #    pygame.draw.rect(gameDisplay, blue, [lb_startx, lb_starty, lb_width, lb_height])
 
 
-#PINTAR PRIMERO LOS CUADRADOS POR DONDE PASO EL CARACTER, Y LUEGO PINTAR TODOS LOS CARACTERES EN PANTALLA
-    #Pintar sobre donde estuvieron los characters para que no dejen un trail
-    #    fantasmitas(t_startx, t_starty, t_width, t_height, black)
-    pygame.draw.rect(gameDisplay, grey, [f_startx, f_starty, f_width, f_height])
-    #    character(orientation,int(X),int(Y))
-    pygame.draw.rect(gameDisplay, grey, [X-1, Y-1, pacq_width, pacq_width])
+
 #ENEMIGOS
 #Hay que reworkear esto
-    fantasmitas(f_startx, f_starty, f_width, f_height, black)
+    #fantasmitas(f_startx, f_starty, f_width, f_height, black)
 #    t_starty = t_speed
 
 #DIBUJADO DE PACQ
-    character(orientation,X,Y)
+    #character(orientation,X,Y)
 #    scored(score)
+
+    pygame.draw.rect(gameDisplay, green, [X, Y, l_width, l_width])
+
+    pygame.draw.line(gameDisplay, green, RayStart, RayEnd)
 
 #LOGIC
 #COLISIONES
