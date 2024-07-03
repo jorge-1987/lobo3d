@@ -142,12 +142,25 @@ def calculodireccion(X,Y,orientation):
   #Aca deberia calcular la direccion para el rayo.
   #Si la orientacion esta en RAD
   #orientagrados = orientation * pi180
+  global grados90
+  global grados180
+  global grados270
+  global grados360
   X = X+10
   Y = Y+10
 
   distancia = 10
 
   orientagrados = orientation
+
+  if orientagrados > grados270:
+    orientagrados = grados360 - orientagrados
+  elif orientagrados > grados180:
+    orientagrados = orientagrados - grados180
+  elif orientagrados > grados90:
+    orientagrados = grados180 - orientagrados
+
+
   endray = [0,0]
   print("Formula")
   print("Grados: "+str(orientagrados))
@@ -279,6 +292,7 @@ def game_loop():
 
           if orientation < grados360:
             orientation = orientation+grados10
+            orientation = round(orientation, 2)
           else:
             orientation = 0
 
@@ -308,6 +322,7 @@ def game_loop():
 
           if orientation > 0:
             orientation = orientation-grados10
+            orientation = round(orientation, 2)
           else:
             orientation = grados360
 
