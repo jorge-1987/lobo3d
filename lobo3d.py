@@ -23,19 +23,40 @@ blue = (0,0,200)
 #Main character
 l_width = 20
 b_width = 50
-orientation = 1.5707963268
+#orientation = 1.5707963268
+orientation = 0
 speed = 1
 
 #Global variable with the score
 score = 0
 
 #Matematica
-grados10  = 0.1745329252
-pi        = 3.1415926535
-pi180     = 57.295779514
-grados90  = 1.5707963268
-grados270 = 4.7123889804
-grados360 = 6.2831853072
+pi        = 3.14
+grados10  = 0.17
+pi180     = 57.29
+grados90  = 1.57
+grados180 = 3.14
+grados270 = 4.71
+grados360 = 6.28
+
+
+#grados10  = 10
+#pi180     = 57.295779514
+#grados90  = 90
+#grados180 = 180
+#grados270 = 270
+#grados360 = 360
+
+#Start position of the character?
+X = 200
+Y = 400
+
+
+RayEnd = [0,0]
+RayStart = [0,0]
+RayEnd[0] = X + 10
+RayEnd[1] = Y + 10
+
 
 #Map
 mapa = [[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -117,6 +138,34 @@ def message_display(text):
 
 #Colisiones
 
+def calculodireccion(X,Y,orientation):
+  #Aca deberia calcular la direccion para el rayo.
+  #Si la orientacion esta en RAD
+  #orientagrados = orientation * pi180
+  X = X+10
+  Y = Y+10
+
+  distancia = 10
+
+  orientagrados = orientation
+  endray = [0,0]
+  print("Formula")
+  print("Grados: "+str(orientagrados))
+  tan = math.tan(orientagrados)
+  tan = round(tan, 2)
+  print("TAN: "+str(tan))
+  co = (tan*distancia)
+  co = round(co, 2)
+  print("CO: "+str(co))
+
+
+  endray[0] = distancia
+  endray[1] = co
+
+  print(endray)
+  print("End Formula")
+  return endray
+
 
 #Game Over!
 def gameover():
@@ -152,13 +201,13 @@ def game_loop():
   global speed
 #  game_intro()
   global orientation
-#Start position of the character?
-  X = 200
-  Y = 400
 
-#Start position of the character?
-  RayStart = [X+10,Y+10]
-  RayEnd = [RayStart[0]+50,RayStart[1]]
+  global RayEnd
+  global RayStart
+
+  global X
+  global Y
+
 
 #The character movement
   x_change = 0
@@ -222,12 +271,11 @@ def game_loop():
         pygame.quit()
         quit()
 
+
       if event.type == pygame.KEYDOWN:
+        #IZQUIERDA---------------------------------
         if event.key == pygame.K_LEFT:
           #down_pressed = True
-          #x_change = (0-speed)
-          x_change = 0
-          y_change = 0
 
           if orientation < grados360:
             orientation = orientation+grados10
@@ -235,12 +283,28 @@ def game_loop():
             orientation = 0
 
           #Ver la orientacion en RAD
-          print(orientation)
+          print("Orientacion: "+str(orientation))
+
+
+
+          RayEnd = calculodireccion(X,Y,orientation)
+
+          if orientation > grados90 and orientation < grados270:
+            RayEnd[0] = RayStart[0]-RayEnd[0]
+          else:
+            RayEnd[0] = RayStart[0]+RayEnd[0]
+          
+          if orientation > 0 and orientation < grados180:
+            RayEnd[1] = RayStart[1]-RayEnd[1]
+          else:
+            RayEnd[1] = RayStart[1]+RayEnd[1]
+          
+          print(RayEnd)
+          #BUSCAR FINAL DEL RAYO
+
+        #DERECHA---------------------------------
         elif event.key == pygame.K_RIGHT:
           #down_pressed = True
-          #x_change = speed
-          x_change = 0
-          y_change = 0
 
           if orientation > 0:
             orientation = orientation-grados10
@@ -248,7 +312,24 @@ def game_loop():
             orientation = grados360
 
           #Ver la orientacion en RAD
-          print(orientation)
+          print("Orientacion: "+str(orientation))
+
+
+          RayEnd = calculodireccion(X,Y,orientation)
+
+          if orientation > grados90 and orientation < grados270:
+            RayEnd[0] = X-RayEnd[0]
+          else:
+            RayEnd[0] = X+RayEnd[0]
+          
+          if orientation > 0 and orientation < grados180:
+            RayEnd[1] = Y-RayEnd[1]
+          else:
+            RayEnd[1] = Y+RayEnd[1]
+          print(RayEnd)
+          #BUSCAR FINAL DEL RAYO
+
+        #ARRIBA---------------------------------
         elif event.key == pygame.K_UP:
           #down_pressed = True
           y_change = (0-speed)
@@ -283,13 +364,6 @@ def game_loop():
 
 
 
-      #if event.type == pygame.KEYUP:
-      #  if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-      #    down_pressed = False
-      #    x_change = 0
-      #  elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-      #    down_pressed = False
-      #    y_change = 0
 
 #AVOID GOING AWAY FROM PLAYING AREA
 #    if (X < 100) and down_pressed and orientation == "l":
@@ -310,46 +384,21 @@ def game_loop():
     #    character(orientation,int(X),int(Y))
     pygame.draw.rect(gameDisplay, grey, [X, Y, l_width, l_width])
 
+    pygame.draw.rect(gameDisplay, green, [X, Y, l_width, l_width])
+
     X += x_change
     Y += y_change
     RayStart[0] = X+10
     RayStart[1] = Y+10
 
 
-    if orientation > grados270 or orientation < grados90:
-      rayolargo = 50
-    else:
-      rayolargo = -50
-
-    orientagrados = orientation * pi180
-
-    ca = (math.tan(orientagrados)*rayolargo)
-    #print(ca)
-
-
-    RayEnd[0] = X+rayolargo
-    RayEnd[1] = Y+ca
-
-#PINTAR FONDO
-#    gameDisplay.fill(grey)
-#PINTAR Marco
-#    pygame.draw.rect(gameDisplay, blue, [ub_startx, ub_starty, ub_width, ub_height])
-#    pygame.draw.rect(gameDisplay, blue, [lb_startx, lb_starty, lb_width, lb_height])
 
 
 
-#ENEMIGOS
-#Hay que reworkear esto
-    #fantasmitas(f_startx, f_starty, f_width, f_height, black)
-#    t_starty = t_speed
 
-#DIBUJADO DE PACQ
-    #character(orientation,X,Y)
-#    scored(score)
 
-    pygame.draw.rect(gameDisplay, green, [X, Y, l_width, l_width])
-
-    pygame.draw.line(gameDisplay, green, RayStart, RayEnd)
+    #RAYOS
+    pygame.draw.line(gameDisplay, black, RayStart, RayEnd)
 
 #LOGIC
 #COLISIONES
